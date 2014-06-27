@@ -21,7 +21,7 @@ function Plex (opts) {
     
     this._mdm = wrap((opts.multiplexer || muxdemux)(function (stream, key) {
         if (!stream) return;
-        var id = defined(key, stream.id, stream.meta);
+        var id = defined(key, stream.meta, stream.id);
 console.error('id=', id);
         if (id !== undefined) self._onstream(stream, id);
     }));
