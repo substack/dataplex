@@ -2,16 +2,21 @@ var inherits = require('inherits');
 var EventEmitter = require('events').EventEmitter;
 var qs = require('querystring');
 var router = require('routes');
-var rpc = require('rpc-stream');
 var Duplex = require('readable-stream').Duplex;
 var defined = require('defined');
 var xtend = require('xtend');
+var split = require('split');
+var through = require('through2');
+var combiner = require('stream-splicer');
 
 var multiplex = require('multiplex');
 var muxdemux = require('mux-demux');
+var isarray = require('isarray');
 
 module.exports = Plex;
 inherits(Plex, Duplex);
+
+var codes = { create: 0 };
 
 function Plex (opts) {
     var self = this;
@@ -25,38 +30,45 @@ function Plex (opts) {
         if (id !== undefined) self._onstream(stream, id);
     }));
     
-    this._streamIndex = 2;
+    this._streamIndex = 1;
     this._waiting = {
         0: function (stream) {
-            stream.pipe(self._rpc).pipe(stream);
+            stream.pipe(self._rpcInput);
+            self._rpcOutput.pipe(stream);
             delete self._waiting[0];
-        },
-        1: function (stream) {
-            var client = rpc();
-            self._rpcClient = client.wrap([ 'create' ]);
-            client.pipe(stream).pipe(client);
-            self.emit('_rpcClient', self._rpcClient);
         }
     };
     
-    this._rpc = rpc({
-        create: function (index, pathname, params, cb) {
-console.error('create', index, pathname, params); 
+    this._rpcInput = combiner(split(), through(function (buf, enc, next) {
+        var line = buf.toString('utf8');
+console.error('line=', line); 
+        try { var row = JSON.parse(line) }
+        catch (err) { return next() }
+        if (!isarray(row)) return next();
+console.error(row); 
+        
+        if (row[0] === codes.create) {
+            var index = row[1];
+            var pathname = row[2];
+            var params = row[3];
+            
             var m = self._router.match(pathname);
-            if (!m) return cb(false)
+            if (!m) return;
             
             var stream = m.fn(xtend(m.params, params));
             var rstream = self._mdm.createStream(index);
             
             if (stream.readable) stream.pipe(rstream);
             if (stream.writable) rstream.pipe(stream);
-            
-            cb(true);
         }
+        next();
+    }));
+    this._rpcOutput = through.obj(function (row, enc, next) {
+        this.push(JSON.stringify(row) + '\n');
+        next();
     });
-    this._mdm.createStream(0);
-    this._mdm.createStream(1);
     
+    this._mdm.createStream(0);
     this._router = router();
 }
 
@@ -81,7 +93,8 @@ Plex.prototype._read = function () {
 };
 
 Plex.prototype._write = function (buf, enc, next) {
-    this._mdm._write(buf, enc, next);
+    this._mdm.write(buf);
+    next();
 };
 
 Plex.prototype.add = function (r, fn) {
@@ -126,14 +139,7 @@ Plex.prototype.open = function (pathname, params) {
         }
         if (stream._reading) stream._read();
     };
-    
-    var create = function () {
-        self._rpcClient.create(index, pathname, params, function (ok) {
-            console.error('ok=', ok);
-        });
-    };
-    if (self._rpcClient) create()
-    else self.once('_rpcClient', create);
+    self._rpcOutput.write([ codes.create, index, pathname, params ]);
     
     return stream;
 };
@@ -147,6 +153,7 @@ function has (obj, key) {
 }
 
 function wrap (stream) {
+    if (stream.read) return stream;
     var s = Duplex().wrap(stream);
     s._write = function (buf, enc, next) {
         stream.write(buf);
