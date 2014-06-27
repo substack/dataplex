@@ -22,15 +22,20 @@ function Plex (opts) {
     this._mdm = wrap((opts.multiplexer || muxdemux)(function (stream, key) {
         if (!stream) return;
         var id = defined(key, stream.meta, stream.id);
-console.error('id=', id);
         if (id !== undefined) self._onstream(stream, id);
     }));
     
-    this._streamIndex = 1;
+    this._streamIndex = 2;
     this._waiting = {
         0: function (stream) {
             stream.pipe(self._rpc).pipe(stream);
             delete self._waiting[0];
+        },
+        1: function (stream) {
+            var client = rpc();
+            self._rpcClient = client.wrap([ 'create' ]);
+            client.pipe(stream).pipe(client);
+            self.emit('_rpcClient', self._rpcClient);
         }
     };
     
@@ -49,18 +54,17 @@ console.error('create', index, pathname, params);
             cb(true);
         }
     });
-    this._rpcClient = this._rpc.wrap([ 'create' ]);
     this._mdm.createStream(0);
+    this._mdm.createStream(1);
     
     this._router = router();
 }
 
 Plex.prototype._onstream = function (stream, id) {
-    if (has(this._waiting, id)) {
-        var w = this._waiting[id];
-        delete this._waiting[id];
-        w(stream);
-    }
+    if (!has(this._waiting, id)) return;
+    var w = this._waiting[id];
+    delete this._waiting[id];
+    w(stream);
 };
 
 Plex.prototype._read = function () {
@@ -85,6 +89,7 @@ Plex.prototype.add = function (r, fn) {
 };
 
 Plex.prototype.open = function (pathname, params) {
+    var self = this;
     var stream = new Duplex;
     stream._write = function (buf, enc, next) {
         stream._buf = buf;
@@ -122,7 +127,13 @@ Plex.prototype.open = function (pathname, params) {
         if (stream._reading) stream._read();
     };
     
-    this._rpcClient.create(index, pathname, params);
+    var create = function () {
+        self._rpcClient.create(index, pathname, params, function (ok) {
+            console.error('ok=', ok);
+        });
+    };
+    if (self._rpcClient) create()
+    else self.once('_rpcClient', create);
     
     return stream;
 };
