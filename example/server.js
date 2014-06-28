@@ -1,4 +1,5 @@
 var net = require('net');
+var fs = require('fs');
 var dataplex = require('../');
 
 var server = net.createServer(function (stream) {

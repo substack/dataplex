@@ -5,8 +5,6 @@ var qs = require('querystring');
 var Duplex = require('readable-stream').Duplex;
 var split = require('split');
 var through = require('through2');
-var combiner = require('stream-combiner');
-var duplexer = require('duplexer2');
 
 var isarray = require('isarray');
 var defined = require('defined');
@@ -15,11 +13,12 @@ var xtend = require('xtend');
 var router = require('routes');
 
 var multiplex = require('multiplex');
+var muxdemux = require('mux-demux');
 
 module.exports = Plex;
 inherits(Plex, Duplex);
 
-var codes = { prelude: 0, create: 1 };
+var codes = { create: 0 };
 
 function Plex (opts) {
     var self = this;
@@ -28,22 +27,11 @@ function Plex (opts) {
     Duplex.call(this);
     
     this._mdm = wrap((opts.multiplexer || multiplex)());
-    
     this._router = router();
-    this._streamIndex = 0;
     
-    var rpc = this._mdm.createStream(this._streamIndex ++);
-    rpc.pipe(this._createRpc()).pipe(rpc);
-    
-    this._ownId = Math.floor(Math.random() * Math.pow(2,32));
-    this._sendCommand([ codes.prelude, this._ownId ]);
-}
-
-Plex.prototype._createRpc = function () {
-    var self = this;
-    var input = combiner(split(), through(function (buf, enc, next) {
+    var input = split();
+    input.pipe(through(function (buf, enc, next) {
         var line = buf.toString('utf8');
-console.error('line=', line); 
         try { var row = JSON.parse(line) }
         catch (err) { return next() }
         if (!isarray(row)) return next();
@@ -53,30 +41,15 @@ console.error('line=', line);
     
     var output = through.obj();
     this._sendCommand = function (row) {
-        output.push(JSON.stringify(row) + '\n');
+        output.write(JSON.stringify(row) + '\n');
     };
     
-    return duplexer(input, output);
-};
-    
+    var rpc = this._mdm.createStream(0);
+    output.pipe(rpc).pipe(input);
+}
+
 Plex.prototype._handleCommand = function (row) {
-    if (row[0] === codes.prelude && this._otherId === undefined) {
-        var cmp = this._ownId < row[1] ? 1
-            : this._ownId > row[1] ? -1
-            : 0
-        ;
-console.error('cmp=', cmp);
-        if (cmp === 0) {
-            this._ownId = Math.floor(Math.random() * Math.pow(2,32));
-            this._sendCommand([ codes.prelude, this._ownId ]);
-            return;
-        }
-        
-        this._cmpId = cmp;
-        this._otherId = row[1];
-        this.emit('_prelude', this._ownId, this._otherId);
-    }
-    else if (row[0] === codes.create) {
+    if (row[0] === codes.create) {
         var index = row[1];
         var pathname = row[2];
         var params = row[3];
@@ -114,7 +87,7 @@ Plex.prototype.add = function (r, fn) {
 };
 
 Plex.prototype.open = function (pathname, params) {
-    var index = this._streamIndex ++;
+    var index = Math.floor(Math.random() * Math.pow(2,32));
     this._sendCommand([ codes.create, index, pathname, params ]);
     return this._mdm.createStream(index);
 };
