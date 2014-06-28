@@ -87,7 +87,11 @@ Plex.prototype.add = function (r, fn) {
 };
 
 Plex.prototype.open = function (pathname, params) {
-    var index = Math.floor(Math.random() * Math.pow(2,32));
+    var buf = Buffer(4);
+    for (var i = 0; i < buf.length; i++) {
+        buf[i] = Math.floor(Math.random() * 256);
+    }
+    var index = buf.toString('base64');
     this._sendCommand([ codes.create, index, pathname, params ]);
     return this._mdm.createStream(index);
 };
