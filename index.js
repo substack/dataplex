@@ -26,12 +26,17 @@ function Plex (opts) {
     if (!opts) opts = {};
     Duplex.call(this);
     
-    this._mdm = wrap((opts.multiplexer || multiplex)());
+    this._mdm = wrap((opts.multiplexer || multiplex)(function (stream, key) {
+        var id = defined(key, stream.meta, stream.id);
+        console.error('id=', id);
+    }));
     this._router = router();
+    this._indexes = {};
     
     var input = split();
     input.pipe(through(function (buf, enc, next) {
         var line = buf.toString('utf8');
+console.error('line=', line); 
         try { var row = JSON.parse(line) }
         catch (err) { return next() }
         if (!isarray(row)) return next();
@@ -49,6 +54,8 @@ function Plex (opts) {
 }
 
 Plex.prototype._handleCommand = function (row) {
+    var self = this;
+    
     if (row[0] === codes.create) {
         var index = row[1];
         var pathname = row[2];
@@ -58,7 +65,12 @@ Plex.prototype._handleCommand = function (row) {
         if (!m) return;
         
         var stream = m.fn(xtend(m.params, params));
+        this._indexes[index] = true;
         var rstream = this._mdm.createStream(index);
+        
+        var onend = function () { delete self._indexes[index] };
+        rstream.once('end', onend);
+        rstream.once('error', onend);
         
         if (stream.readable) stream.pipe(rstream);
         if (stream.writable) rstream.pipe(stream);
@@ -87,13 +99,22 @@ Plex.prototype.add = function (r, fn) {
 };
 
 Plex.prototype.open = function (pathname, params) {
-    var buf = Buffer(4);
+    var index = this._getIndex(0, 3);
+    this._sendCommand([ codes.create, index, pathname, params ]);
+    return this._mdm.createStream(index);
+};
+
+Plex.prototype._getIndex = function (times, size) {
+    if (times > 2) return this._getIndex(0, size * 2);
+    
+    var buf = Buffer(size);
     for (var i = 0; i < buf.length; i++) {
         buf[i] = Math.floor(Math.random() * 256);
     }
-    var index = buf.toString('base64');
-    this._sendCommand([ codes.create, index, pathname, params ]);
-    return this._mdm.createStream(index);
+    var s = buf.toString('base64');
+    if (has(this._indexes, s)) return this._getIndex((times || 0) + 1);
+    this._indexes[s] = true;
+    return s;
 };
 
 Plex.prototype.get = function (pathname, params) {
