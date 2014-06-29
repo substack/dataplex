@@ -1,19 +1,12 @@
 var inherits = require('inherits');
-var EventEmitter = require('events').EventEmitter;
-var qs = require('querystring');
-
 var Duplex = require('readable-stream').Duplex;
 var split = require('split');
 var through = require('through2');
-
-var isarray = require('isarray');
-var defined = require('defined');
-var xtend = require('xtend');
+var multiplex = require('multiplex');
 
 var router = require('routes');
-
-var multiplex = require('multiplex');
 var muxdemux = require('mux-demux');
+var xtend = require('xtend');
 
 module.exports = Plex;
 inherits(Plex, Duplex);
@@ -35,7 +28,7 @@ function Plex (opts) {
         var line = buf.toString('utf8');
         try { var row = JSON.parse(line) }
         catch (err) { return next() }
-        if (!isarray(row)) return next();
+        if (!row || typeof row !== 'object') return next();
         self._handleCommand(row);
         next();
     }));
