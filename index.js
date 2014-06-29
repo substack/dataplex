@@ -5,7 +5,6 @@ var through = require('through2');
 var multiplex = require('multiplex');
 
 var router = require('routes');
-var muxdemux = require('mux-demux');
 var xtend = require('xtend');
 
 module.exports = Plex;
