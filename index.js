@@ -26,17 +26,13 @@ function Plex (opts) {
     if (!opts) opts = {};
     Duplex.call(this);
     
-    this._mdm = wrap((opts.multiplexer || multiplex)(function (stream, key) {
-        var id = defined(key, stream.meta, stream.id);
-        console.error('id=', id);
-    }));
-    this._router = router();
+    this._mdm = wrap((opts.multiplexer || multiplex)());
+    this.router = opts.router || router();
     this._indexes = {};
     
     var input = split();
     input.pipe(through(function (buf, enc, next) {
         var line = buf.toString('utf8');
-console.error('line=', line); 
         try { var row = JSON.parse(line) }
         catch (err) { return next() }
         if (!isarray(row)) return next();
@@ -61,7 +57,7 @@ Plex.prototype._handleCommand = function (row) {
         var pathname = row[2];
         var params = row[3];
         
-        var m = this._router.match(pathname);
+        var m = this.router.match(pathname);
         if (!m) return;
         
         var stream = m.fn(xtend(m.params, params));
@@ -95,7 +91,7 @@ Plex.prototype._write = function (buf, enc, next) {
 };
 
 Plex.prototype.add = function (r, fn) {
-    this._router.addRoute(r, fn);
+    this.router.addRoute(r, fn);
 };
 
 Plex.prototype.open = function (pathname, params) {
