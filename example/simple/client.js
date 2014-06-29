@@ -1,4 +1,4 @@
-var dataplex = require('../');
+var dataplex = require('../../');
 var net = require('net');
 var con = net.connect(5000);
 
