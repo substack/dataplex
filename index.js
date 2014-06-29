@@ -18,7 +18,7 @@ function Plex (opts) {
     if (!opts) opts = {};
     Duplex.call(this);
     
-    this._mdm = wrap((opts.multiplexer || multiplex)());
+    this._mdm = multiplex();
     this.router = opts.router || router();
     this._indexes = {};
     
@@ -111,15 +111,4 @@ Plex.prototype.get = function (pathname, params) {
 
 function has (obj, key) {
     return Object.prototype.hasOwnProperty.call(obj, key) ;
-}
-
-function wrap (stream) {
-    if (stream.read) return stream;
-    var s = Duplex().wrap(stream);
-    s._write = function (buf, enc, next) {
-        stream.write(buf);
-        next();
-    };
-    s.end = function (m) { stream.end(m) };
-    return s;
 }
