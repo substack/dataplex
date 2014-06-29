@@ -1,0 +1,26 @@
+[
+  {
+    "type": "put",
+    "key": "book!snow-crash",
+    "value": {
+      "author": "Neil Stephenson",
+      "year": 1993
+    }
+  },
+  {
+    "type": "put",
+    "key": "book!diamond-age",
+    "value": {
+      "author": "Neil Stephenson",
+      "year": 1996
+    }
+  },
+  {
+    "type": "put",
+    "key": "book!cryptonomicon",
+    "value": {
+      "author": "Neil Stephenson",
+      "year": 1998
+    }
+  }
+]
