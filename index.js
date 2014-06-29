@@ -53,6 +53,7 @@ Plex.prototype._handleCommand = function (row) {
         var params = row[3];
         
         var stream = this.get(pathname, params);
+        if (!stream) return;
         
         this._indexes[index] = true;
         var rstream = this._mdm.createStream(index);
