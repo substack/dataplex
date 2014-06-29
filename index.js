@@ -4,6 +4,8 @@ var split = require('split');
 var through = require('through2');
 var multiplex = require('multiplex');
 var duplexer = require('duplexer2');
+var concat = require('concat-stream');
+var nextTick = require('process').nextTick;
 
 var router = require('routes');
 var xtend = require('xtend');
@@ -86,13 +88,22 @@ Plex.prototype.add = function (r, fn) {
     this.router.addRoute(r, fn);
 };
 
-Plex.prototype.open = function (pathname, params) {
+Plex.prototype.open = function (pathname, params, cb) {
+    if (typeof params === 'function') {
+        cb = params;
+        params = {};
+    }
     var index = this._allocIndex(0, 3);
     this._sendCommand([ codes.create, index, pathname, params ]);
-    return duplexer(
+    var stream = duplexer(
         this._mdm.createStream(index),
         this._mdm.createStream(index+1)
     );
+    if (cb) {
+        stream.once('error', cb);
+        stream.pipe(concat(function (body) { cb(null, body) }));
+    }
+    return stream;
 };
 
 Plex.prototype._allocIndex = function (times, size) {
@@ -113,11 +124,26 @@ Plex.prototype._allocIndex = function (times, size) {
     return s;
 };
 
-Plex.prototype.get = function (pathname, params) {
+Plex.prototype.get = function (pathname, params, cb) {
+    if (typeof params === 'function') {
+        cb = params;
+        params = {};
+    }
     var m = this.router.match(pathname);
     if (!m) return undefined;
     
-    return m.fn(xtend(m.params, params));
+    var stream = m.fn(xtend(m.params, params), function (err, res) {
+        if (err) return; // TODO
+        nextTick(function () {
+            stream.end(res);
+        });
+    });
+    if (!stream) stream = through();
+    if (cb) {
+        stream.once('error', cb);
+        stream.pipe(concat(function (body) { cb(null, body) }));
+    }
+    return stream;
 };
 
 function has (obj, key) {
