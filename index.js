@@ -3,6 +3,7 @@ var Duplex = require('readable-stream').Duplex;
 var split = require('split');
 var through = require('through2');
 var multiplex = require('multiplex');
+var duplexer = require('duplexer2');
 
 var router = require('routes');
 var xtend = require('xtend');
@@ -55,12 +56,13 @@ Plex.prototype._handleCommand = function (row) {
         var stream = m.fn(xtend(m.params, params));
         this._indexes[index] = true;
         var rstream = this._mdm.createStream(index);
+        var wstream = this._mdm.createStream(index+1);
         
         var onend = function () { delete self._indexes[index] };
         rstream.once('end', onend);
         rstream.once('error', onend);
         
-        if (stream.readable) stream.pipe(rstream);
+        if (stream.readable) stream.pipe(wstream);
         if (stream.writable) rstream.pipe(stream);
     }
 };
@@ -87,20 +89,28 @@ Plex.prototype.add = function (r, fn) {
 };
 
 Plex.prototype.open = function (pathname, params) {
-    var index = this._getIndex(0, 3);
+    var index = this._allocIndex(0, 3);
     this._sendCommand([ codes.create, index, pathname, params ]);
-    return this._mdm.createStream(index);
+    return duplexer(
+        this._mdm.createStream(index),
+        this._mdm.createStream(index+1)
+    );
 };
 
-Plex.prototype._getIndex = function (times, size) {
-    if (times > 2) return this._getIndex(0, size * 2);
+Plex.prototype._allocIndex = function (times, size) {
+    if (times > 2) return this._allocIndex(0, size * 2);
     
     var buf = Buffer(size);
     for (var i = 0; i < buf.length; i++) {
-        buf[i] = Math.floor(Math.random() * 256);
+        if (i === size - 1) {
+            buf[i] = Math.floor(Math.random() * 128) * 2;
+        }
+        else {
+            buf[i] = Math.floor(Math.random() * 256);
+        }
     }
     var s = buf.toString('base64');
-    if (has(this._indexes, s)) return this._getIndex((times || 0) + 1);
+    if (has(this._indexes, s)) return this._allocIndex((times || 0) + 1);
     this._indexes[s] = true;
     return s;
 };

@@ -37,7 +37,7 @@ test('duplex', function (t) {
         t.equal(body.toString('utf8'), 'eno\nowt\neerht\n');
     }));
     reverse.write('one\n');
-    reverse.end('two\nthree\n');
+    reverse.end('two\nthree');
     
     plex1.pipe(plex2).pipe(plex1);
 });
