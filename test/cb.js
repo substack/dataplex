@@ -9,7 +9,7 @@ test('cb', function (t) {
     var plex2 = dataplex();
     
     plex1.add('/aaa/:n?', function (opts, cb) {
-        cb(null, Array(opts.n+1).join('A'));
+        cb(null, Array(Number(opts.n)+1).join('A'));
     });
     
     plex2.open('/aaa/5').pipe(concat(function (body) {
