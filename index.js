@@ -50,10 +50,8 @@ Plex.prototype._handleCommand = function (row) {
         var pathname = row[2];
         var params = row[3];
         
-        var m = this.router.match(pathname);
-        if (!m) return;
+        var stream = this.get(pathname, params);
         
-        var stream = m.fn(xtend(m.params, params));
         this._indexes[index] = true;
         var rstream = this._mdm.createStream(index);
         var wstream = this._mdm.createStream(index+1);
@@ -116,7 +114,10 @@ Plex.prototype._allocIndex = function (times, size) {
 };
 
 Plex.prototype.get = function (pathname, params) {
-    // ...
+    var m = this.router.match(pathname);
+    if (!m) return undefined;
+    
+    return m.fn(xtend(m.params, params));
 };
 
 function has (obj, key) {
