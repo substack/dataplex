@@ -3,7 +3,7 @@ var Readable = require('readable-stream').Readable;
 var test = require('tape');
 var concat = require('concat-stream');
 
-test('simple read, client -> server', function (t) {
+test('read, client -> server', function (t) {
     t.plan(2);
     
     var plex1 = dataplex();
