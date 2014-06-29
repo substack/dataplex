@@ -5,7 +5,7 @@ var db = require('level')('books.db', { encoding: 'json' });
 db.batch(require('./data.json'));
 
 var server = net.createServer(function (stream) {
-    var plex = dataplex({ valueEncoding: 'json' });
+    var plex = dataplex();
     plex.add('/upper', function (opts) {
         return through(function (buf, enc, next) {
             this.push(buf.toString('utf8').toUpperCase());
@@ -23,8 +23,8 @@ var server = net.createServer(function (stream) {
     });
     
     plex.add('/book/:name', function (opts, cb) {
-        db.get('book!' + opts.name, { encoding: 'utf8' }, function (err, row) {
-            cb(err, row + '\n');
+        db.get('book!' + opts.name, function (err, row) {
+            cb(err, JSON.stringify(row) + '\n');
         });
     });
     

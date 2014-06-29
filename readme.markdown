@@ -7,8 +7,80 @@ over a single bidirectional stream such as a web socket or a tcp connection.
 
 # example
 
+We can build a tcp server to host up some book data and other assorted streams
+at different endpoints:
+
 ``` js
+var net = require('net');
+var dataplex = require('dataplex');
+var through = require('through2');
+var db = require('level')('books.db', { encoding: 'json' });
+db.batch(require('./data.json'));
+
+var server = net.createServer(function (stream) {
+    var plex = dataplex();
+    plex.add('/upper', function (opts) {
+        return through(function (buf, enc, next) {
+            this.push(buf.toString('utf8').toUpperCase());
+            next();
+        });
+    });
+    
+    plex.add('/books', function (opts) {
+        return db.createReadStream({ lt: 'book!\uffff', gt: 'book!' })
+            .pipe(through.obj(function (row, enc, next) {
+                this.push(row.key.split('!')[1] + '\n');
+                next();
+            }))
+        ;
+    });
+    
+    plex.add('/book/:name', function (opts, cb) {
+        db.get('book!' + opts.name, function (err, row) {
+            cb(err, JSON.stringify(row) + '\n');
+        });
+    });
+    
+    stream.pipe(plex).pipe(stream);
+});
+server.listen(5000);
 ```
+
+and now we can build a client to open up multiple streams from the server, all
+multiplexed over a single tcp connection:
+
+```
+var dataplex = require('dataplex');
+var net = require('net');
+
+var con = net.connect(5000);
+var plex = dataplex();
+con.pipe(plex).pipe(con);
+
+var stream = plex.open('/upper');
+stream.pipe(process.stdout);
+stream.end('beep boop\n');
+
+plex.open('/book/snow-crash').pipe(process.stdout);
+plex.open('/books').pipe(process.stdout);
+```
+
+All the streams get dumped to stdout as expected:
+
+```
+$ node server.js &
+[1] 12025
+$ node client.js
+BEEP BOOP
+{"author":"Neil Stephenson","year":1993}
+cryptonomicon
+diamond-age
+snow-crash
+^C
+```
+
+This example showed a client and server, but the protocol is fully symmetric so
+either side can define and consume streams from the other end.
 
 # methods
 
