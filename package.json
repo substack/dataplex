@@ -1,0 +1,40 @@
+{
+  "name": "dataplex",
+  "version": "1.0.0",
+  "description": "binary stream multiplex router",
+  "main": "index.js",
+  "dependencies": {
+    "concat-stream": "^1.4.6",
+    "duplexer2": "~0.0.2",
+    "inherits": "^2.0.1",
+    "multiplex": "^2.0.1",
+    "readable-stream": "^1.1.13-1",
+    "routes": "^1.1.0",
+    "split": "~0.3.0",
+    "through2": "^1.0.0",
+    "xtend": "^3.0.0"
+  },
+  "devDependencies": {
+    "tape": "^2.13.2"
+  },
+  "scripts": {
+    "test": "tape test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/substack/dataplex.git"
+  },
+  "homepage": "https://github.com/substack/dataplex",
+  "keywords": [
+    "stream",
+    "multiplex",
+    "organize",
+    "router"
+  ],
+  "author": {
+    "name": "James Halliday",
+    "email": "mail@substack.net",
+    "url": "http://substack.net"
+  },
+  "license": "MIT"
+}
