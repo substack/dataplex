@@ -8,6 +8,7 @@
     "duplexer2": "~0.0.2",
     "inherits": "^2.0.1",
     "multiplex": "^2.0.2",
+    "process": "^0.7.0",
     "readable-stream": "^1.1.13-1",
     "routes": "^1.1.0",
     "split": "~0.3.0",
@@ -15,6 +16,7 @@
     "xtend": "^3.0.0"
   },
   "devDependencies": {
+    "stream-combiner": "^0.2.1",
     "tape": "^2.13.2"
   },
   "scripts": {
