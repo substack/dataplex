@@ -24,10 +24,10 @@ test('read, client -> server', function (t) {
         return s;
     });
     
-    plex1.open('/abc').pipe(concat(function (body) {
+    plex1.get('/abc').pipe(concat(function (body) {
         t.equal(body.toString('utf8'), 'ABC');
     }));
-    plex1.open('/xyz').pipe(concat(function (body) {
+    plex1.get('/xyz').pipe(concat(function (body) {
         t.equal(body.toString('utf8'), 'XYZ');
     }));
     

@@ -26,13 +26,13 @@ test('duplex', function (t) {
         }));
     });
     
-    var upper = plex2.open('/upper');
+    var upper = plex2.get('/upper');
     upper.pipe(concat(function (body) {
         t.equal(body.toString('utf8'), 'BEEP BOOP');
     }));
     upper.end('beep boop');
     
-    var reverse = plex1.open('/reverse');
+    var reverse = plex1.get('/reverse');
     reverse.pipe(concat(function (body) {
         t.equal(body.toString('utf8'), 'eno\nowt\neerht\n');
     }));

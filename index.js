@@ -131,7 +131,7 @@ Plex.prototype.get = function (pathname, params, cb) {
         params = {};
     }
     var m = this.router.match(pathname);
-    if (!m) return undefined;
+    if (!m) return this.open(pathname, params, cb);
     
     var stream = m.fn(xtend(m.params, params), function (err, res) {
         if (err) return; // TODO
