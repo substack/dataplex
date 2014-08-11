@@ -68,7 +68,7 @@ test('stream errback', function (t) {
 });
 
 test('stream non-error instance errors', function (t) {
-    t.plan(2);
+    t.plan(3);
     var prop = Object.getOwnPropertyNames;
     Object.getOwnPropertyNames = undefined;
     t.on('end', function () {
@@ -90,6 +90,17 @@ test('stream non-error instance errors', function (t) {
         });
     });
     
+    plex1.add('/x3', function (opts) {
+        var s = new Readable;
+        s._read = function () {};
+        process.nextTick(function () {
+            s.emit('error', new Error('yo'));
+        });
+        s.push('hyo');
+        s.push(null);
+        return s;
+    });
+    
     plex2.open('/x1', function (err, body) {
         t.equal(err.message, JSON.stringify({ hey: 'yo' }));
     });
@@ -98,5 +109,9 @@ test('stream non-error instance errors', function (t) {
         t.equal(err, 'hey');
     });
     
+    var s3 = plex2.open('/x3');
+    s3.pipe(concat(function (body) {
+        t.equal(body.toString('utf8'), 'hyo');
+    }));
     plex1.pipe(plex2).pipe(plex1);
 });
