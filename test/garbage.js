@@ -48,7 +48,8 @@ test('ignore garbage rpc json', function (t) {
         t.equal(body.toString('utf8'), 'XYZ');
     }));
     
-    plex2._mdm.createStream(0).write('[[[[}\n');
+    plex2._mdm.createStream(0).write('[[[[}\n'); // invalid json
+    plex2._mdm.createStream(0).write('"boo"\n'); // wrong type of object
     
     plex1.pipe(plex2).pipe(plex1);
 });
