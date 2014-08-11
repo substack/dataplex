@@ -25,3 +25,44 @@ test('remote stream error', function (t) {
     
     plex1.pipe(plex2).pipe(plex1);
 });
+
+test('remote stream error cb', function (t) {
+    t.plan(1);
+    
+    var plex1 = dataplex();
+    var plex2 = dataplex();
+    
+    plex1.add('/xyz', function (opts) {
+        var s = new Readable;
+        s._read = function () {};
+        process.nextTick(function () {
+            s.emit('error', new Error('yo'));
+        });
+        return s;
+    });
+    
+    plex2.open('/xyz', function (err, body) {
+        t.equal(err.message, 'yo');
+    });
+    
+    plex1.pipe(plex2).pipe(plex1);
+});
+
+test('stream errback', function (t) {
+    t.plan(1);
+    
+    var plex1 = dataplex();
+    var plex2 = dataplex();
+    
+    plex1.add('/xyz', function (opts, cb) {
+        process.nextTick(function () {
+            cb(new Error('yo'));
+        });
+    });
+    
+    plex2.open('/xyz', function (err, body) {
+        t.equal(err.message, 'yo');
+    });
+    
+    plex1.pipe(plex2).pipe(plex1);
+});
