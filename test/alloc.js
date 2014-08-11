@@ -6,8 +6,8 @@ var concat = require('concat-stream');
 test('alloc test', function (t) {
     t.plan(300);
     
-    var plex1 = dataplex({ allocSize: 1 });
-    var plex2 = dataplex();
+    var plex1 = dataplex();
+    var plex2 = dataplex({ allocSize: 1 });
     
     for (var i = 0; i < 300; i++) (function (i) {
         plex1.add('/x' + i, function (opts) {

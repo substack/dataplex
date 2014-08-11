@@ -33,6 +33,7 @@ function Plex (opts) {
     })();
     this.router = opts.router || router();
     this._indexes = {};
+    this._allocSize = opts.allocSize || 3;
     
     var input = split();
     input.pipe(through(function (buf, enc, next) {
@@ -106,7 +107,7 @@ Plex.prototype.remote = function (pathname, params, cb) {
         cb = params;
         params = {};
     }
-    var index = this._allocIndex(0, 3);
+    var index = this._allocIndex(0, this._allocSize);
     this._sendCommand([ codes.create, index, pathname, params ]);
     var stream = duplexer(
         this._mdm.createStream(index),
@@ -132,7 +133,7 @@ Plex.prototype._allocIndex = function (times, size) {
         }
     }
     var s = buf.toString('base64');
-    if (has(this._indexes, s)) return this._allocIndex((times || 0) + 1);
+    if (has(this._indexes, s)) return this._allocIndex((times || 0) + 1, size);
     this._indexes[s] = true;
     return s;
 };
