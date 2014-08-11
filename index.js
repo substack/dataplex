@@ -22,6 +22,15 @@ function Plex (opts) {
     Duplex.call(this);
     
     this._mdm = multiplex();
+    
+    (function () {
+        var errored = false, ended = false;
+        self._mdm.on('error', function () {
+            if (!errored && !ended) self.emit('end');
+            errored = true;
+        });
+        self._mdm.on('end', function () { ended = true });
+    })();
     this.router = opts.router || router();
     this._indexes = {};
     
