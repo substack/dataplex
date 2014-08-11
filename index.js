@@ -207,7 +207,7 @@ function serializeError (err) {
     if (err && typeof err === 'object') {
         var names = (Object.getOwnPropertyNames || Object.keys)(err);
         var eobj = {
-            message: err.message || String(err),
+            message: err.message || JSON.stringify(err),
             type: err.type
         };
         for (var i = 0; i < names.length; i++) {

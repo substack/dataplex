@@ -66,3 +66,37 @@ test('stream errback', function (t) {
     
     plex1.pipe(plex2).pipe(plex1);
 });
+
+test('stream non-error instance errors', function (t) {
+    t.plan(2);
+    var prop = Object.getOwnPropertyNames;
+    Object.getOwnPropertyNames = undefined;
+    t.on('end', function () {
+        Object.getOwnPropertyNames = prop;
+    });
+    
+    var plex1 = dataplex();
+    var plex2 = dataplex();
+    
+    plex1.add('/x1', function (opts, cb) {
+        process.nextTick(function () {
+            cb({ hey: 'yo' });
+        });
+    });
+    
+    plex1.add('/x2', function (opts, cb) {
+        process.nextTick(function () {
+            cb('hey');
+        });
+    });
+    
+    plex2.open('/x1', function (err, body) {
+        t.equal(err.message, JSON.stringify({ hey: 'yo' }));
+    });
+    
+    plex2.open('/x2', function (err, body) {
+        t.equal(err, 'hey');
+    });
+    
+    plex1.pipe(plex2).pipe(plex1);
+});
