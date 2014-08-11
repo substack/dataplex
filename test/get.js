@@ -4,7 +4,7 @@ var test = require('tape');
 var concat = require('concat-stream');
 
 test('get a local stream', function (t) {
-    t.plan(2);
+    t.plan(3);
     
     var plex1 = dataplex();
     var plex2 = dataplex();
@@ -23,6 +23,10 @@ test('get a local stream', function (t) {
     
     plex1.open('/xyz').pipe(concat(function (body) {
         t.equal(body.toString('utf8'), 'XYZ');
+    }));
+    
+    plex1.open('/nope').pipe(concat(function (body) {
+        t.equal(body.toString('utf8'), '');
     }));
     
     plex1.pipe(plex2).pipe(plex1);
