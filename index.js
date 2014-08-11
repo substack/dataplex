@@ -89,7 +89,7 @@ Plex.prototype.add = function (r, fn) {
     this.router.addRoute(r, fn);
 };
 
-Plex.prototype.open = function (pathname, params, cb) {
+Plex.prototype.remote = function (pathname, params, cb) {
     if (typeof params === 'function') {
         cb = params;
         params = {};
@@ -125,13 +125,13 @@ Plex.prototype._allocIndex = function (times, size) {
     return s;
 };
 
-Plex.prototype.get = function (pathname, params, cb) {
+Plex.prototype.local = function (pathname, params, cb) {
     if (typeof params === 'function') {
         cb = params;
         params = {};
     }
     var m = this.router.match(pathname);
-    if (!m) return this.open(pathname, params, cb);
+    if (!m) return undefined;
     
     var stream = m.fn(xtend(m.params, params), function (err, res) {
         if (err) return; // TODO
@@ -145,6 +145,17 @@ Plex.prototype.get = function (pathname, params, cb) {
         stream.pipe(concat(function (body) { cb(null, body) }));
     }
     return stream;
+};
+
+Plex.prototype.open = function (pathname, params, cb) {
+    var stream = this.local(pathname, params, cb);
+    if (!stream) return this.remote(pathname, params, cb);
+    return stream;
+};
+
+Plex.prototype.get = function (pathname, params, cb) {
+    // DEPRECATED
+    return this.open(pathname, params, cb);
 };
 
 function has (obj, key) {
