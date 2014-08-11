@@ -107,23 +107,42 @@ Define a route on the underlying router instance.
 
 `pattern` may contain parameters according to the syntax used by the
 [routes](https://npmjs.org/package/routes) module. These parameters and other
-parameters supplied to `open()` or `get()` will be available to the
-`fn(opts, cb)` function as the `opts`.
+parameters supplied to `open()`, `remote()`, or `local()` will be available to
+the `fn(opts, cb)` function as the `opts`.
 
 `fn(opts, cb)` will be called when the route is opened.
 `fn` should return a stream (readable, writable, or duplex) or it may call
 `cb(err, result)`, with a single `result` to send on the outgoing stream.
 
+If the stream returned by `fn` emits an error, that error object will be
+serialized and sent to the consumer of that pathname on the `'error'` event.
+
+If `cb(err)` is called with an error, the error is serialized and sent on the
+remote stream's `'error'` event.
+
 ## var stream = plex.open(pathname, params={}, cb)
 
-Return a duplex stream from the remote endpoint matching `pathname`. You can
-encode parameters directly into the `pathname` or pass them explicitly with
-`params`. `params` takes precedence.
+Return a duplex stream from the remote or local endpoint matching `pathname`.
+
+Local pathnames take precedence over remote names in the case where both sides
+have defined a route at `pathname`.
+
+See the `.local()` and `.remote()` methods for more info.
+
+## var stream = plex.remote(pathname, params={}, cb)
+
+Return a duplex stream from the remote or local endpoint matching `pathname`.
+
+You can encode parameters directly into the `pathname` or pass them explicitly
+with `params`. `params` takes precedence.
 
 Optionally, you can pass in a `cb(err, body)` to buffer the stream output into a
 single buffer.
 
-## var stream = plex.get(pathname, params={}, cb)
+If the remote stream emits an error, the error object is serialized and sent
+through the `'error'` event or `cb(err)`.
+
+## var stream = plex.local(pathname, params={}, cb)
 
 Return a duplex stream from the locally-defined routes matching `pathname`. You
 can encode parameters directly into the `pathname` or pass them explicitly with
@@ -131,6 +150,10 @@ can encode parameters directly into the `pathname` or pass them explicitly with
 
 Optionally, you can pass in a `cb(err, body)` to buffer the stream output into a
 single buffer.
+
+## var stream = plex.get(pathname, params={}, cb)
+
+Deprecated alias for `plex.local()`.
 
 # install
 
