@@ -33,6 +33,7 @@ function Plex (opts) {
     })();
     this.router = opts.router || router();
     this._indexes = {};
+    this._remoteStreams = {};
     this._allocSize = opts.allocSize || 3;
     
     var input = split();
@@ -87,6 +88,13 @@ Plex.prototype._handleCommand = function (row) {
         if (stream.readable) stream.pipe(wstream);
         if (stream.writable) rstream.pipe(stream);
     }
+    else if (row[0] === codes.error) {
+        var index = row[1];
+        var err = row[2];
+        if (has(this._remoteStreams, index)) {
+            this._remoteStreams[index].emit('error', err);
+        }
+    }
 };
 
 Plex.prototype._read = function () {
@@ -111,6 +119,7 @@ Plex.prototype.add = function (r, fn) {
 };
 
 Plex.prototype.remote = function (pathname, params, cb) {
+    var self = this;
     if (typeof params === 'function') {
         cb = params;
         params = {};
@@ -121,6 +130,16 @@ Plex.prototype.remote = function (pathname, params, cb) {
         this._mdm.createStream(index),
         this._mdm.createStream(index+1)
     );
+    this._remoteStreams[index] = stream;
+    var ended = false;
+    var onend = function () {
+        if (ended) return;
+        delete self._remoteStreams[index];
+        ended = true;
+    };
+    stream.once('end', onend);
+    stream.once('error', onend);
+    
     if (cb) {
         stream.once('error', cb);
         stream.pipe(concat(function (body) { cb(null, body) }));
