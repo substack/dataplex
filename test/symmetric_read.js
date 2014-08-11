@@ -31,13 +31,13 @@ test('read, peer <-> peer', function (t) {
         return s;
     });
     
-    plex1.get('/abc').pipe(concat(function (body) {
+    plex1.open('/abc').pipe(concat(function (body) {
         t.equal(body.toString('utf8'), 'ABC');
     }));
-    plex1.get('/xyz').pipe(concat(function (body) {
+    plex1.open('/xyz').pipe(concat(function (body) {
         t.equal(body.toString('utf8'), 'XYZ');
     }));
-    plex2.get('/robot').pipe(concat(function (body) {
+    plex2.open('/robot').pipe(concat(function (body) {
         t.equal(body.toString('utf8'), 'beep boop');
     }));
     

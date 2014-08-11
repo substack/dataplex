@@ -21,25 +21,25 @@ test('cb', function (t) {
         return r;
     });
     
-    plex2.get('/aaa/5').pipe(concat(function (body) {
+    plex2.open('/aaa/5').pipe(concat(function (body) {
         t.equal(body.toString('utf8'), 'AAAAA');
     }));
-    plex1.get('/aaa/3').pipe(concat(function (body) {
+    plex1.open('/aaa/3').pipe(concat(function (body) {
         t.equal(body.toString('utf8'), 'AAA');
     }));
     
-    plex2.get('/aaa/5', function (err, body) {
+    plex2.open('/aaa/5', function (err, body) {
         t.equal(body.toString('utf8'), 'AAAAA');
     });
-    plex1.get('/aaa/3', function (err, body) {
+    plex1.open('/aaa/3', function (err, body) {
         t.equal(body.toString('utf8'), 'AAA');
     });
     
-    plex1.get('/bbb/5', function (err, body) {
+    plex1.open('/bbb/5', function (err, body) {
         t.equal(body.toString('utf8'), 'BBBBB');
     });
     
-    plex2.get('/bbb/5', function (err, body) {
+    plex2.open('/bbb/5', function (err, body) {
         t.equal(body.toString('utf8'), 'BBBBB');
     });
     

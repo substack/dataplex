@@ -17,19 +17,19 @@ test('route parameters', function (t) {
         return s;
     });
     
-    plex2.get('/upper', { msg: 'beep boop' }).pipe(concat(function (body) {
+    plex2.open('/upper', { msg: 'beep boop' }).pipe(concat(function (body) {
         t.equal(body.toString('utf8'), 'BEEP BOOP');
     }));
     
-    plex2.get('/upper/amaze').pipe(concat(function (body) {
+    plex2.open('/upper/amaze').pipe(concat(function (body) {
         t.equal(body.toString('utf8'), 'AMAZE');
     }));
     
-    plex1.get('/upper', { msg: 'beep boop' }).pipe(concat(function (body) {
+    plex1.open('/upper', { msg: 'beep boop' }).pipe(concat(function (body) {
         t.equal(body.toString('utf8'), 'BEEP BOOP');
     }));
     
-    plex1.get('/upper/amaze').pipe(concat(function (body) {
+    plex1.open('/upper/amaze').pipe(concat(function (body) {
         t.equal(body.toString('utf8'), 'AMAZE');
     }));
     

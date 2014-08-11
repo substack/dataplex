@@ -17,11 +17,11 @@ test('get a local stream', function (t) {
         return s;
     });
     
-    plex2.get('/xyz').pipe(concat(function (body) {
+    plex2.open('/xyz').pipe(concat(function (body) {
         t.equal(body.toString('utf8'), 'XYZ');
     }));
     
-    plex1.get('/xyz').pipe(concat(function (body) {
+    plex1.open('/xyz').pipe(concat(function (body) {
         t.equal(body.toString('utf8'), 'XYZ');
     }));
     

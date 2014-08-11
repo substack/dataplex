@@ -155,7 +155,7 @@ Plex.prototype.open = function (pathname, params, cb) {
 
 Plex.prototype.get = function (pathname, params, cb) {
     // DEPRECATED
-    return this.open(pathname, params, cb);
+    return this.local(pathname, params, cb);
 };
 
 function has (obj, key) {
