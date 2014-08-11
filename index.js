@@ -13,7 +13,7 @@ var xtend = require('xtend');
 module.exports = Plex;
 inherits(Plex, Duplex);
 
-var codes = { create: 0 };
+var codes = { create: 0, error: 1 };
 
 function Plex (opts) {
     var self = this;
@@ -63,16 +63,24 @@ Plex.prototype._handleCommand = function (row) {
         var params = row[3];
         
         var stream = this.local(pathname, params);
+        var onerror = function (err) {
+            self._sendCommand([ codes.error, index, serializeError(err) ]);
+        };
+        
         if (!stream) {
             stream = through();
             stream.push(null);
         }
+        stream.on('error', onerror);
         
         this._indexes[index] = true;
         var rstream = this._mdm.createStream(index);
         var wstream = this._mdm.createStream(index+1);
         
-        var onend = function () { delete self._indexes[index] };
+        var onend = function () {
+            delete self._indexes[index];
+            stream.removeListener('error', onerror);
+        };
         rstream.once('end', onend);
         rstream.once('error', onend);
         
@@ -147,12 +155,13 @@ Plex.prototype.local = function (pathname, params, cb) {
     if (!m) return undefined;
     
     var stream = m.fn(xtend(m.params, params), function (err, res) {
-        if (err) return; // TODO
         nextTick(function () {
-            stream.end(res);
+            if (err) stream.emit('error', err)
+            else stream.end(res)
         });
     });
     if (!stream) stream = through();
+    
     if (cb) {
         stream.once('error', cb);
         stream.pipe(concat(function (body) { cb(null, body) }));
@@ -173,4 +182,19 @@ Plex.prototype.get = function (pathname, params, cb) {
 
 function has (obj, key) {
     return Object.prototype.hasOwnProperty.call(obj, key) ;
+}
+
+function serializeError (err) {
+    if (err && typeof err === 'object') {
+        var names = (Object.getOwnPropertyNames || Object.keys)(err);
+        var eobj = {
+            message: err.message || String(err),
+            type: err.type
+        };
+        for (var i = 0; i < names.length; i++) {
+            eobj[names[i]] = err[names[i]];
+        }
+        return eobj;
+    }
+    else return err;
 }
