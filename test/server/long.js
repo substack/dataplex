@@ -7,7 +7,7 @@ var net = require('net');
 
 test('long string', function (t) {
     t.plan(1);
-    var payload = Array(500+1).join('A');
+    var payload = Buffer(Array(50000+1).join('A'));
     
     var server = net.createServer(function (stream) {
         var plex = dataplex();
@@ -26,7 +26,7 @@ test('long string', function (t) {
         
         var plex = dataplex();
         plex.open('/long').pipe(concat(function (body) {
-            t.equal(body.toString('utf8'), payload);
+            t.equal(body.length, payload.length);
         }));
         plex.pipe(stream).pipe(plex);
     });
