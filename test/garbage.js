@@ -12,7 +12,7 @@ test('garbage in', function (t) {
     plex.on('end', function () {
         t.ok(true, 'hung up');
     });
-    plex.write('yoyoyo\n');
+    plex.write(Array(5000).join('yoyoyo\n'));
     plex.resume();
 });
 
@@ -25,7 +25,7 @@ test('garbage already ended', function (t) {
     plex.on('end', function () {
         t.ok(true, 'hung up');
     });
-    plex.write('yoyoyo\n');
+    plex.write(Array(5000).join('yoyoyo\n'));
     plex._mdm.end();
     plex.resume();
 });

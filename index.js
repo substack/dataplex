@@ -21,7 +21,7 @@ function Plex (opts) {
     if (!opts) opts = {};
     Duplex.call(this);
     
-    this._mdm = multiplex();
+    this._mdm = multiplex({ maxDepth: opts.maxDepth });
     
     (function () {
         var errored = false, ended = false;
