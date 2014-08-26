@@ -101,6 +101,11 @@ Passing in a custom `opts.route` is useful if you want to define your routes
 outside of a connection callback more similarly to how http routers are
 typically used. Consult the `example/router` directory for an example.
 
+The `opts.maxDepth` you specify will be passed directly through to
+[multiplex](https://npmjs.org/package/multiplex). You might need to adjust this
+value if you generate many hundreds of events simultaneously on different
+streams.
+
 ## plex.add(pattern, fn)
 
 Define a route on the underlying router instance.
