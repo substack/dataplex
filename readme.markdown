@@ -106,6 +106,12 @@ The `opts.maxDepth` you specify will be passed directly through to
 value if you generate many hundreds of events simultaneously on different
 streams.
 
+Note that `plex` emits and consumes binary data, so whatever connection you pipe
+data through must be binary-capable. This can sometimes be a problem in the
+browser with string-encoded transports, but you use base64 to avoid issues with
+binary-incapable transports.
+See also: [shoe-bin](https://npmjs.org/package/shoe-bin).
+
 ## plex.add(pattern, fn)
 
 Define a route on the underlying router instance.
