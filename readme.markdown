@@ -9,6 +9,8 @@ binary stream multiplex router
 Use this module to organize a collection of streaming interfaces multiplexed
 over a single bidirectional stream such as a web socket or a tcp connection.
 
+![dataplex](images/dataplex.png)
+
 # example
 
 We can build a tcp server to host up some book data and other assorted streams
