@@ -70,8 +70,13 @@ Plex.prototype._handleCommand = function (row) {
         
         if (!stream) {
             stream = through();
-            stream.push(null);
+            var noRouteError = "No dataplex route for " + pathname;
+            if (self.noRouteHandler) {
+                noRouteError = self.noRouteHandler(pathname);
+            }
+            onerror(noRouteError);
         }
+        
         stream.on('error', onerror);
         
         this._indexes[index] = true;
