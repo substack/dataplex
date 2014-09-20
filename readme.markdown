@@ -108,6 +108,11 @@ The `opts.maxDepth` you specify will be passed directly through to
 value if you generate many hundreds of events simultaneously on different
 streams.
 
+You can give an `opts.missing` function as a catch-all fallback route.
+`opts.missing(pathname)` is called with the route pathname string and should
+return a stream like any other route. If the missing stream emits errors, these
+errors are serialized like any other stream error.
+
 Note that `plex` emits and consumes binary data, so whatever connection you pipe
 data through must be binary-capable. This can sometimes be a problem in the
 browser with string-encoded transports, but you use base64 to avoid issues with
