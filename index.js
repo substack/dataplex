@@ -22,6 +22,7 @@ function Plex (opts) {
     Duplex.call(this);
     
     this._mdm = multiplex({ maxDepth: opts.maxDepth });
+    if (opts.missing) this._missing = opts.missing;
     
     (function () {
         var errored = false, ended = false;
@@ -68,13 +69,12 @@ Plex.prototype._handleCommand = function (row) {
             self._sendCommand([ codes.error, index, serializeError(err) ]);
         };
         
+        if (!stream && self._missing) {
+            stream = self._missing(pathname);
+        }
         if (!stream) {
             stream = through();
-            var noRouteError = "No dataplex route for " + pathname;
-            if (self.noRouteHandler) {
-                noRouteError = self.noRouteHandler(pathname);
-            }
-            onerror(noRouteError);
+            stream.push(null);
         }
         
         stream.on('error', onerror);

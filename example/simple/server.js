@@ -12,4 +12,4 @@ var server = net.createServer(function (stream) {
     });
     stream.pipe(plex).pipe(stream);
 });
-server.listen(5000);
+server.listen(5002);
