@@ -36,6 +36,9 @@ function Plex (opts) {
     this._indexes = {};
     this._remoteStreams = {};
     this._allocSize = opts.allocSize || 3;
+    this._eventNames = {
+        close: '_close'
+    };
     
     var input = split();
     input.pipe(through(function (buf, enc, next) {
@@ -171,6 +174,7 @@ Plex.prototype._allocIndex = function (times, size) {
 };
 
 Plex.prototype.local = function (pathname, params, cb) {
+    var self = this;
     if (typeof params === 'function') {
         cb = params;
         params = {};
@@ -185,6 +189,9 @@ Plex.prototype.local = function (pathname, params, cb) {
         });
     });
     if (!stream) stream = through();
+    stream.once('finish', function () {
+        stream.emit(self._eventNames.close);
+    });
     
     if (cb) {
         stream.once('error', cb);
