@@ -3,7 +3,7 @@ var Writable = require('readable-stream').Writable;
 var test = require('tape');
 var concat = require('concat-stream');
 
-test('close event on end', function (t) {
+test('close event on finish', function (t) {
     t.plan(2);
     
     var events = [];

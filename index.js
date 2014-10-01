@@ -13,7 +13,7 @@ var xtend = require('xtend');
 module.exports = Plex;
 inherits(Plex, Duplex);
 
-var codes = { create: 0, error: 1 };
+var codes = { create: 0, error: 1, destroy: 2 };
 
 function Plex (opts) {
     var self = this;
@@ -35,6 +35,7 @@ function Plex (opts) {
     this.router = opts.router || router();
     this._indexes = {};
     this._remoteStreams = {};
+    this._localStreams = {};
     this._allocSize = opts.allocSize || 3;
     this._eventNames = {
         close: '_close'
@@ -68,8 +69,10 @@ Plex.prototype._handleCommand = function (row) {
         var params = row[3];
         
         var stream = this.local(pathname, params);
+        this._localStreams[index] = stream;
         var onerror = function (err) {
             self._sendCommand([ codes.error, index, serializeError(err) ]);
+            delete self._localStreams[index];
         };
         
         if (!stream && self._missing) {
@@ -88,6 +91,7 @@ Plex.prototype._handleCommand = function (row) {
         
         var onend = function () {
             delete self._indexes[index];
+            delete self._localStreams[index];
             stream.removeListener('error', onerror);
         };
         rstream.once('end', onend);
@@ -99,8 +103,23 @@ Plex.prototype._handleCommand = function (row) {
     else if (row[0] === codes.error) {
         var index = row[1];
         var err = row[2];
-        if (has(this._remoteStreams, index)) {
-            this._remoteStreams[index].emit('error', err);
+        if (has(this._localStreams, index)) {
+            this._localStreams[index].emit('error', err);
+        }
+    }
+    else if (row[0] === codes.destroy) {
+        var index = row[1];
+        if (has(this._localStreams, index)) {
+            var s = this._localStreams[index];
+            s.emit('_destroy');
+            s.emit('_close');
+            if (s.destroy) {
+                s.destroy();
+            }
+            else {
+                s._read = function () {};
+                s._write = function () {};
+            }
         }
     }
 };
@@ -147,6 +166,11 @@ Plex.prototype.remote = function (pathname, params, cb) {
     };
     stream.once('end', onend);
     stream.once('error', onend);
+    
+    stream.destroy = function () {
+        delete self._remoteStreams[index];
+        self._sendCommand([ codes.destroy, index ]);
+    };
     
     if (cb) {
         stream.once('error', cb);

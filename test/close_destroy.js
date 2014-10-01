@@ -17,6 +17,9 @@ test('close event on destroy', function (t) {
             buffers.push(buf);
             next();
         };
+        s.on('_destroy', function () {
+            events.push('_destroy');
+        });
         s.on('_close', function () {
             events.push('_close');
         });
@@ -31,6 +34,6 @@ test('close event on destroy', function (t) {
     
     setTimeout(function () {
         t.deepEqual(buffers, []);
-        t.deepEqual(events, [ '_close' ]);
+        t.deepEqual(events, [ '_destroy', '_close' ]);
     }, 20);
 });
