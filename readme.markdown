@@ -189,6 +189,9 @@ stream events:
 * `'_destroy'` - emitted when the remote end calls `stream.destroy()`
 * `'_close'` - emitted when a stream errors, ends, or is destroyed
 
+The `'_close'` event is handy if you allocated some resources and need to free
+them again.
+
 # install
 
 With [npm](https://npmjs.org) do:
