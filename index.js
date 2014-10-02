@@ -38,7 +38,8 @@ function Plex (opts) {
     this._localStreams = {};
     this._allocSize = opts.allocSize || 3;
     this._eventNames = {
-        close: '_close'
+        close: '_close',
+        destroy: '_destroy'
     };
     
     var input = split();
@@ -74,7 +75,7 @@ Plex.prototype._handleCommand = function (row) {
             self._sendCommand([ codes.error, index, serializeError(err) ]);
             var s = self._localStreams[index];
             if (s) {
-                s.emit('_close');
+                s.emit(self._eventNames.close);
                 delete self._localStreams[index];
             }
         };
@@ -115,8 +116,8 @@ Plex.prototype._handleCommand = function (row) {
         var index = row[1];
         if (has(this._localStreams, index)) {
             var s = this._localStreams[index];
-            s.emit('_destroy');
-            s.emit('_close');
+            s.emit(this._eventNames.destroy);
+            s.emit(this._eventNames.close);
             if (s.destroy) {
                 s.destroy();
             }
