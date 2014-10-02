@@ -72,7 +72,11 @@ Plex.prototype._handleCommand = function (row) {
         this._localStreams[index] = stream;
         var onerror = function (err) {
             self._sendCommand([ codes.error, index, serializeError(err) ]);
-            delete self._localStreams[index];
+            var s = self._localStreams[index];
+            if (s) {
+                s.emit('_close');
+                delete self._localStreams[index];
+            }
         };
         
         if (!stream && self._missing) {

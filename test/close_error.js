@@ -36,6 +36,6 @@ test('close event on destroy', function (t) {
     
     setTimeout(function () {
         t.deepEqual(buffers, []);
-        t.deepEqual(events, [ 'err:yo', '_close' ]);
+        t.deepEqual(events, [ 'error:yo', '_close' ]);
     }, 20);
 });
