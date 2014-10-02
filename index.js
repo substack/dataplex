@@ -59,6 +59,12 @@ function Plex (opts) {
     
     var rpc = this._mdm.createStream(0);
     output.pipe(rpc).pipe(input);
+    
+    this.on('finish', function () {
+        Object.keys(self._localStreams).forEach(function (key) {
+            self._localStreams[key].emit('_close');
+        });
+    });
 }
 
 Plex.prototype._handleCommand = function (row) {

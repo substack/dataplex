@@ -9,14 +9,13 @@ var server = net.createServer(function (stream) {
         s._read = function () {};
         var iv = setInterval(function () {
             s.push('yo\n');
-        }, 500);
+        }, 100);
         s.once('_close', function () {
             console.log('close!');
             clearInterval(iv);
         });
         return s;
     });
-    stream.on('error', function () {});
     stream.pipe(plex).pipe(stream);
 });
 server.listen(5002);
