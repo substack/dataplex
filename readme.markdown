@@ -138,6 +138,11 @@ serialized and sent to the consumer of that pathname on the `'error'` event.
 If `cb(err)` is called with an error, the error is serialized and sent on the
 remote stream's `'error'` event.
 
+When the remote stream closes, when an error occurs, or when the remote calls
+`stream.destroy()`, a `'_close'` event fires on the stream object returned by
+`fn`. `stream.destroy()` generates a `'_destroy'` event in addition to the
+`'_close'` event.
+
 ## var stream = plex.open(pathname, params={}, cb)
 
 Return a duplex stream from the remote or local endpoint matching `pathname`.
@@ -160,6 +165,9 @@ single buffer.
 If the remote stream emits an error, the error object is serialized and sent
 through the `'error'` event or `cb(err)`.
 
+`stream.destroy()` emits a `'_destroy'` event on the remote end in addition to a
+`'_close'` event.
+
 ## var stream = plex.local(pathname, params={}, cb)
 
 Return a duplex stream from the locally-defined routes matching `pathname`. You
@@ -172,6 +180,14 @@ single buffer.
 ## var stream = plex.get(pathname, params={}, cb)
 
 Deprecated alias for `plex.local()`.
+
+# events
+
+Streams created with `plex.add()` will get these events in addition to the usual
+stream events:
+
+* `'_destroy'` - emitted when the remote end calls `stream.destroy()`
+* `'_close'` - emitted when a stream errors, ends, or is destroyed
 
 # install
 
