@@ -103,8 +103,8 @@ Plex.prototype._handleCommand = function (row) {
     else if (row[0] === codes.error) {
         var index = row[1];
         var err = row[2];
-        if (has(this._localStreams, index)) {
-            this._localStreams[index].emit('error', err);
+        if (has(this._remoteStreams, index)) {
+            this._remoteStreams[index].emit('error', err);
         }
     }
     else if (row[0] === codes.destroy) {
@@ -120,6 +120,7 @@ Plex.prototype._handleCommand = function (row) {
                 s._read = function () {};
                 s._write = function () {};
             }
+            delete this._localStreams[index];
         }
     }
 };
