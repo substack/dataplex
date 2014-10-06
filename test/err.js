@@ -102,7 +102,7 @@ test('stream non-error instance errors', function (t) {
     });
     
     plex2.open('/x1', function (err, body) {
-        t.equal(err.message, JSON.stringify({ hey: 'yo' }));
+        t.deepEqual(err, { hey: 'yo' });
     });
     
     plex2.open('/x2', function (err, body) {

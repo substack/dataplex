@@ -254,13 +254,12 @@ function has (obj, key) {
 function serializeError (err) {
     if (err && typeof err === 'object') {
         var names = (Object.getOwnPropertyNames || Object.keys)(err);
-        var eobj = {
-            message: err.message || JSON.stringify(err),
-            type: err.type
-        };
+        var eobj = {};
         for (var i = 0; i < names.length; i++) {
             eobj[names[i]] = err[names[i]];
         }
+        if (err.message) eobj.message = err.message;
+        if (err.type) eobj.type = err.type;
         return eobj;
     }
     else return err;
