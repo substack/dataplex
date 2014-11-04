@@ -62,7 +62,8 @@ function Plex (opts) {
     
     this.on('finish', function () {
         Object.keys(self._localStreams).forEach(function (key) {
-            self._localStreams[key].emit('_close');
+            var s = self._localStreams[key];
+            if (s && typeof s.emit === 'function') s.emit('_close');
         });
     });
 }
