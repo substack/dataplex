@@ -1,6 +1,6 @@
 {
   "name": "dataplex",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "binary stream multiplex router",
   "main": "index.js",
   "dependencies": {
