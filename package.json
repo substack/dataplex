@@ -1,25 +1,23 @@
 {
   "name": "dataplex",
-  "version": "3.0.2",
+  "version": "4.0.0",
   "description": "binary stream multiplex router",
   "main": "index.js",
   "dependencies": {
-    "concat-stream": "^1.4.6",
-    "duplexer2": "~0.0.2",
+    "concat-stream": "^1.4.10",
     "inherits": "^2.0.1",
-    "multiplex": "^3.0.0",
-    "process": "^0.7.0",
-    "readable-stream": "^1.1.13-1",
-    "routes": "^1.1.0",
-    "split": "~0.3.0",
-    "through2": "^1.0.0",
-    "xtend": "^3.0.0"
+    "multiplex": "^6.2.1",
+    "routes": "^2.0.0",
+    "through2": "^2.0.0",
+    "xtend": "^4.0.0"
   },
   "devDependencies": {
-    "stream-combiner": "~0.2.1",
-    "tape": "^2.13.2",
+    "chunky": "~0.0.0",
     "covert": "^1.0.0",
-    "chunky": "~0.0.0"
+    "readable-stream": "^2.0.0",
+    "split": "^1.0.0",
+    "stream-combiner": "~0.2.1",
+    "tape": "^2.13.2"
   },
   "scripts": {
     "test": "tape test/*.js",
@@ -35,6 +33,10 @@
     "multiplex",
     "organize",
     "router"
+  ],
+  "contributors": [
+    "James Halliday <mail@substack.net> (https://github.com/substack)",
+    "Kristian Lyngbaek <kristianlyngbaek@gmail.com> (https://github.com/klyngbaek)"
   ],
   "author": {
     "name": "James Halliday",

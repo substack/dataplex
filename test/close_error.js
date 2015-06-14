@@ -23,19 +23,19 @@ test('close event on destroy', function (t) {
         s.on('error', function (err) {
             events.push('error:' + err.message);
         });
-        s.on('_close', function () {
-            events.push('_close');
+        s.on('close', function () {
+            events.push('close');
         });
         return s;
     });
     
     var stream = plex2.open('/xyz');
-    stream.end('yo');
+    stream.end('yosomething'); // change test 
     
     plex1.pipe(plex2).pipe(plex1);
     
     setTimeout(function () {
         t.deepEqual(buffers, []);
-        t.deepEqual(events, [ 'error:yo', '_close' ]);
+        t.deepEqual(events, [ 'error:yo', 'close' ]);
     }, 20);
 });

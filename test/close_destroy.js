@@ -1,7 +1,8 @@
 var dataplex = require('../');
-var Writable = require('readable-stream').Writable;
+var Readable = require('readable-stream');
 var test = require('tape');
 var concat = require('concat-stream');
+var Stream = require('stream');
 
 test('close event on destroy', function (t) {
     t.plan(2);
@@ -12,16 +13,18 @@ test('close event on destroy', function (t) {
     var plex2 = dataplex();
     
     plex1.add('/xyz', function (opts) {
-        var s = new Writable;
+        var s = new Stream.Duplex();
         s._write = function (buf, enc, next) {
             buffers.push(buf);
             next();
         };
-        s.on('_destroy', function () {
-            events.push('_destroy');
-        });
-        s.on('_close', function () {
-            events.push('_close');
+        s._read = function (size) {
+        };
+        s.destroy = function () {
+            events.push('destroy');
+        };
+        s.on('close', function () {
+            events.push('close');
         });
         return s;
     });
@@ -34,6 +37,6 @@ test('close event on destroy', function (t) {
     
     setTimeout(function () {
         t.deepEqual(buffers, []);
-        t.deepEqual(events, [ '_destroy', '_close' ]);
+        t.deepEqual(events, [ 'destroy', 'close' ]);
     }, 20);
 });

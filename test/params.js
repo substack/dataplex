@@ -25,11 +25,11 @@ test('route parameters', function (t) {
         t.equal(body.toString('utf8'), 'AMAZE');
     }));
     
-    plex1.open('/upper', { msg: 'beep boop' }).pipe(concat(function (body) {
+    plex2.open('/upper', { msg: 'beep boop' }).pipe(concat(function (body) {
         t.equal(body.toString('utf8'), 'BEEP BOOP');
     }));
     
-    plex1.open('/upper/amaze').pipe(concat(function (body) {
+    plex2.open('/upper/amaze').pipe(concat(function (body) {
         t.equal(body.toString('utf8'), 'AMAZE');
     }));
     

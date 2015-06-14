@@ -17,8 +17,8 @@ test('close event on outer finish', function (t) {
             buffers.push(buf);
             next();
         };
-        s.on('_close', function () {
-            events.push('_close');
+        s.on('close', function () {
+            events.push('close');
         });
         s.on('finish', function () {
             events.push('finish');
@@ -36,6 +36,6 @@ test('close event on outer finish', function (t) {
     
     setTimeout(function () {
         t.equal(Buffer.concat(buffers).toString('utf8'), 'yo');
-        t.deepEqual(events, [ '_close' ]);
+        t.deepEqual(events, [ 'close' ]);
     }, 20);
 });
