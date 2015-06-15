@@ -11,6 +11,8 @@ over a single bidirectional stream such as a web socket or a tcp connection.
 
 ![dataplex](images/dataplex.png)
 
+[![NPM](https://nodei.co/npm/dataplex.png)](https://nodei.co/npm/dataplex)
+
 # example
 
 We can build a tcp server to host up some book data and other assorted streams
