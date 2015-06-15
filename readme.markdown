@@ -138,11 +138,6 @@ serialized and sent to the consumer of that pathname on the `'error'` event.
 If `cb(err)` is called with an error, the error is serialized and sent on the
 remote stream's `'error'` event.
 
-When the remote stream closes, when an error occurs, or when the remote calls
-`stream.destroy()`, a `'_close'` event fires on the stream object returned by
-`fn`. `stream.destroy()` generates a `'_destroy'` event in addition to the
-`'_close'` event.
-
 ## var stream = plex.open(pathname, params={}, cb)
 
 Return a duplex stream from the remote endpoint matching `pathname`.

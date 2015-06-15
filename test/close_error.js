@@ -14,7 +14,7 @@ test('close event on destroy', function (t) {
     plex1.add('/xyz', function (opts) {
         var s = new Writable;
         s._write = function (buf, enc, next) {
-            buffers.push(buf);
+            buffers.push(buf.toString('utf8'));
             next();
         };
         process.nextTick(function () {
@@ -31,11 +31,14 @@ test('close event on destroy', function (t) {
     
     var stream = plex2.open('/xyz');
     stream.end('yosomething'); // change test 
+
+    stream.on('error', function () {
+    });
     
     plex1.pipe(plex2).pipe(plex1);
     
     setTimeout(function () {
-        t.deepEqual(buffers, []);
+        t.deepEqual(buffers, ['yosomething']);
         t.deepEqual(events, [ 'error:yo', 'close' ]);
     }, 20);
 });
