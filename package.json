@@ -6,7 +6,7 @@
   "dependencies": {
     "concat-stream": "^1.4.10",
     "inherits": "^2.0.1",
-    "multiplex": "^6.2.1",
+    "multiplex": "^6.2.2",
     "routes": "^2.0.0",
     "through2": "^2.0.0",
     "xtend": "^4.0.0"
