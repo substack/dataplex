@@ -1,7 +1,7 @@
 var multiplex = require('multiplex');
 var router = require('routes');
 var xtend = require('xtend');
-var Duplex = require('stream').Duplex;
+var Duplex = require('readable-stream').Duplex;
 var inherits = require('inherits');
 var concat = require('concat-stream');
 
