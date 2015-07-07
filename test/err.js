@@ -1,7 +1,6 @@
 var dataplex = require('../');
 var Readable = require('readable-stream').Readable;
 var test = require('tape');
-var concat = require('concat-stream');
 
 test('remote stream error', function (t) {
     t.plan(1);

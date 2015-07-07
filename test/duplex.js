@@ -1,5 +1,4 @@
 var dataplex = require('../');
-var Readable = require('readable-stream').Readable;
 var test = require('tape');
 var concat = require('concat-stream');
 var through = require('through2');
