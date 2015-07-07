@@ -1,5 +1,5 @@
 var dataplex = require('../');
-var Readable = require('readable-stream');
+var Writable = require('readable-stream').Writable;
 var test = require('tape');
 var concat = require('concat-stream');
 var Stream = require('stream');
@@ -13,12 +13,10 @@ test('close event on destroy', function (t) {
     var plex2 = dataplex();
     
     plex1.add('/xyz', function (opts) {
-        var s = new Stream.Duplex();
+        var s = new Writeable;
         s._write = function (buf, enc, next) {
             buffers.push(buf);
             next();
-        };
-        s._read = function (size) {
         };
         s.destroy = function () {
             events.push('destroy');
