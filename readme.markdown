@@ -16,10 +16,10 @@ over a single bidirectional stream such as a web socket or a tcp connection.
 # Release Notes
 
 ## 4.0.0
-
-- Upgraded underyling [multiplex](https://github.com/maxogden/multiplex) to 6.2.2.
+- Upgraded underyling [multiplex](https://github.com/maxogden/multiplex) to 6.2.2. Greatly improve stability under high loads.
 - Removed `remote`, `local`, and `get` methods.
 - Removed `_destroy` and `_close` events. Now handled by underlying multiplex.
+- Removed `missing` and `maxDepth` options
 
 # example
 
@@ -112,16 +112,6 @@ should match the [routes](https://npmjs.org/package/routes) module.
 Passing in a custom `opts.route` is useful if you want to define your routes
 outside of a connection callback more similarly to how http routers are
 typically used. Consult the `example/router` directory for an example.
-
-The `opts.maxDepth` you specify will be passed directly through to
-[multiplex](https://npmjs.org/package/multiplex). You might need to adjust this
-value if you generate many hundreds of events simultaneously on different
-streams.
-
-You can give an `opts.missing` function as a catch-all fallback route.
-`opts.missing(pathname)` is called with the route pathname string and should
-return a stream like any other route. If the missing stream emits errors, these
-errors are serialized like any other stream error.
 
 Note that `plex` emits and consumes binary data, so whatever connection you pipe
 data through must be binary-capable. This can sometimes be a problem in the
