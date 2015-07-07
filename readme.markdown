@@ -15,6 +15,12 @@ over a single bidirectional stream such as a web socket or a tcp connection.
 
 # Release Notes
 
+## 4.0.0
+
+- Upgraded underyling [multiplex](https://github.com/maxogden/multiplex) to 6.2.2.
+- Removed `remote`, `local`, and `get` methods.
+- Removed `_destroy` and `_close` events. Now handled by underlying multiplex.
+
 # example
 
 We can build a tcp server to host up some book data and other assorted streams
