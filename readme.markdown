@@ -1,6 +1,6 @@
 # dataplex
 
-binary stream multiplex router
+Binary stream multiplex router
 
 [![testling badge](https://ci.testling.com/substack/dataplex.png)](https://ci.testling.com/substack/dataplex)
 
@@ -12,6 +12,8 @@ over a single bidirectional stream such as a web socket or a tcp connection.
 ![dataplex](images/dataplex.png)
 
 [![NPM](https://nodei.co/npm/dataplex.png)](https://nodei.co/npm/dataplex)
+
+# Release Notes
 
 # example
 
