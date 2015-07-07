@@ -4,14 +4,14 @@ Binary stream multiplex router
 
 [![testling badge](https://ci.testling.com/substack/dataplex.png)](https://ci.testling.com/substack/dataplex)
 
+[![NPM](https://nodei.co/npm/dataplex.png)](https://nodei.co/npm/dataplex)
+
 [![build status](https://secure.travis-ci.org/substack/dataplex.png)](http://travis-ci.org/substack/dataplex)
 
 Use this module to organize a collection of streaming interfaces multiplexed
 over a single bidirectional stream such as a web socket or a tcp connection.
 
 ![dataplex](images/dataplex.png)
-
-[![NPM](https://nodei.co/npm/dataplex.png)](https://nodei.co/npm/dataplex)
 
 # Release Notes
 
