@@ -20,6 +20,7 @@ over a single bidirectional stream such as a web socket or a tcp connection.
 - Removed `remote`, `local`, and `get` methods.
 - Removed `_destroy` and `_close` events. Now handled by underlying multiplex.
 - Removed `missing` and `maxDepth` options
+- Removed support for node 0.8. Working to fix this.
 
 # example
 
