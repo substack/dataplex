@@ -8,19 +8,23 @@ var concat = require('concat-stream');
 module.exports = Plex;
 inherits(Plex, Duplex);
 function Plex () {
-    var self = this;
     if (!(this instanceof Plex)) return new Plex();
     Duplex.call(this);
-
-    self.myStreams = {};
+    var self = this;
 
     this.router = router();
+    // a dict of open streams on the remote side
+    // so we know which remote streams to close when outer plex stream closes
+    self.myStreams = {};
+
     this.multiplex = multiplex({chunked: false, halfOpen: true}, function (stream, id) {
+        
+        // decode the path and params from id
         var index = id.lastIndexOf('?');
         var pathname = id.substring(0,index);
         var params = JSON.parse(decodeURIComponent(id.substring(index+1)));
-        var m = self.router.match(pathname);
         
+        var m = self.router.match(pathname);
         if (m) {
             var s = m.fn(xtend(m.params, params), function (err, data) {
                 if (err) {
